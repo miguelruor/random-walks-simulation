@@ -1,4 +1,4 @@
 .venv
-ibm-credentials.env
+.env
 apikey.json
 __pycache__

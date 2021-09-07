@@ -2,8 +2,10 @@ import classic_simulation
 import json
 import os
 import networkx as nx
+from dotenv import load_dotenv
 
 if __name__ == "__main__":
+    load_dotenv()
     
     data_file  = open("data.json", "r")
     data = json.load(data_file)
@@ -23,7 +25,7 @@ if __name__ == "__main__":
     genotype_networks_file.close()
 
     initial_genotype = 200
-    max_simulation_time = 10**(8)
+    max_simulation_time = int(os.environ['MAXTIME']) #10**(8)
     gamma_c = 10**(-7)
     
     classic_simulation.simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, gamma_c)
