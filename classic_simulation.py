@@ -3,9 +3,8 @@ import networkx as nx
 from scipy.stats import expon
 from ibmcloudant.cloudant_v1 import CloudantV1, Document
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-import pandas as pd
 import os
-import time
+import time as timing
 
 def infinitesimalGenerator(G, gamma):
   # gamma is the mutation rate 
@@ -26,7 +25,7 @@ def nextState(states, i, Q):
   return np.random.choice(states, p = probs)
 
 def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, gamma):
-  start = time.time()
+  start = timing.time()
 
   tau = {} # tau (hitting time) for every phenotype: time it takes quantum walk to find given phenotype
   N = {} # number of jumps the random walk takes to find a genotype with a new phenotype
@@ -65,7 +64,7 @@ def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
     phenotypes_actual_state = gspace.nodes[actual_state]['phenotypeName']
   
   # end of simulation
-  end = time.time()
+  end = timing.time()
 
   # database connection
   authenticator = IAMAuthenticator(os.environ['CLOUDANT_APIKEY'])
