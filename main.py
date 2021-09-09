@@ -78,8 +78,9 @@ if __name__ == "__main__":
     phenotypes = phenotypes_file.splitlines()
 
     genotype_networks =json.loads(get_item("general-data", data[gspace_name]["g-networks"]).decode("utf8"))
+    initial_nodes = classical_parameters['initial_nodes'][gspace_name]
 
-    initial_genotype = classical_parameters['initial_nodes'][gspace_name][job_index%10]
+    initial_genotype = initial_nodes[job_index%len(initial_nodes)]
     max_simulation_time = classical_parameters['max_time'] 
     gamma_c = classical_parameters['transition_rate']
     
