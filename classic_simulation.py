@@ -5,7 +5,7 @@ from ibmcloudant.cloudant_v1 import CloudantV1, Document
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import os
 import time as timing
-import datetime as datetime
+from datetime import datetime
 
 def infinitesimalGenerator(G, gamma):
   # gamma is the mutation rate 
