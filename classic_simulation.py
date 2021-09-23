@@ -5,6 +5,7 @@ from ibmcloudant.cloudant_v1 import CloudantV1, Document
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import os
 import time as timing
+import datetime as datetime
 
 def infinitesimalGenerator(G, gamma):
   # gamma is the mutation rate 
@@ -26,6 +27,7 @@ def nextState(states, i, Q):
 
 def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, gamma):
   start = timing.time()
+  date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
   tau = {} # tau (hitting time) for every phenotype: time it takes quantum walk to find given phenotype
   N = {} # number of jumps the random walk takes to find a genotype with a new phenotype
@@ -83,6 +85,8 @@ def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   simulation.max_simulation_time = max_simulation_time
   simulation.total_mutations = jump
   simulation.computing_time = end-start
+  simulation.simulation_time = time
+  simulation.date = date
 
   for phen in phenotypes:
     setattr(simulation, 'tau_'+phen, tau[phen] if tau[phen] >= 0 else time)
