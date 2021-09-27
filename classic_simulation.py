@@ -74,7 +74,10 @@ def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   cloudant = CloudantV1(authenticator=authenticator)
   cloudant.set_service_url(os.environ['CLOUDANT_URL'])
 
-  client = cloudant.new_instance()
+  try:
+    client = cloudant.new_instance()
+  except:
+    print("Could not create a client")
 
   simulation: Document = Document()
 
@@ -91,8 +94,13 @@ def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   for phen in phenotypes:
     setattr(simulation, 'tau_'+phen, tau[phen] if tau[phen] >= 0 else time)
     setattr(simulation, 'mutations_'+phen, N[phen])
-    
-  client.post_document(
-    db="simulations-cw-"+gspace_name,
-    document=simulation
-  )
+
+  try:
+    client.post_document(
+      db="simulations-cw-"+gspace_name,
+      document=simulation
+    )
+    print("Wrote in Cloudant successfully")
+
+  except:
+    print("Unexpected error")
