@@ -77,7 +77,7 @@ def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   try:
     client = cloudant.new_instance()
   except:
-    print("Could not create a client")
+    print("Could not create a cloudant client")
 
   simulation: Document = Document()
 
