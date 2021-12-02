@@ -1,8 +1,7 @@
 import numpy as np
 import networkx as nx
 from scipy.stats import expon
-from ibmcloudant.cloudant_v1 import CloudantV1, Document
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibmcloudant.cloudant_v1 import Document
 import os
 import time as timing
 from datetime import datetime
@@ -68,17 +67,6 @@ def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   # end of simulation
   end = timing.time()
 
-  # database connection
-  authenticator = IAMAuthenticator(os.environ['CLOUDANT_APIKEY'])
-
-  cloudant = CloudantV1(authenticator=authenticator)
-  cloudant.set_service_url(os.environ['CLOUDANT_URL'])
-
-  try:
-    client = cloudant.new_instance()
-  except:
-    print("Could not create a cloudant client")
-
   simulation: Document = Document()
 
   simulation.initial_gen_index = initial_genotype
@@ -95,12 +83,4 @@ def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
     setattr(simulation, 'tau_'+phen, tau[phen] if tau[phen] >= 0 else time)
     setattr(simulation, 'mutations_'+phen, N[phen])
 
-  try:
-    client.post_document(
-      db="simulations-cw-"+gspace_name,
-      document=simulation
-    )
-    print("Wrote in Cloudant successfully")
-
-  except:
-    print("Unexpected error")
+  

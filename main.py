@@ -5,6 +5,8 @@ import networkx as nx
 import ibm_boto3
 from ibm_botocore.client import Config
 from ibm_botocore.exceptions import ClientError
+from ibmcloudant.cloudant_v1 import CloudantV1
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -87,5 +89,45 @@ if __name__ == "__main__":
     initial_genotype = initial_nodes[initial_node_index]
     max_simulation_time = classical_parameters['max_time'] 
     gamma_c = classical_parameters['transition_rate']
+    num_simulations = classical_parameters['num_simulations']
+
+    # database connection
+    authenticator = IAMAuthenticator(os.environ['CLOUDANT_APIKEY'])
+
+    cloudant = CloudantV1(authenticator=authenticator)
+    cloudant.set_service_url(os.environ['CLOUDANT_URL'])
+
+    try:    
+        client = cloudant.new_instance()
+    except:
+        print("Could not create a cloudant client")
     
-    classic_simulation.simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, gamma_c)
+    for i in range(num_simulations):
+        print("Simulation {0}".format(i))
+        results = classic_simulation.simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, gamma_c)
+
+        simulation: Document = Document()
+
+        simulation.initial_gen_index = initial_genotype
+        simulation.initial_gen = gspace.nodes[initial_genotype]['sequence']
+        simulation.initial_phen = gspace.nodes[initial_genotype]['phenotypeName'][0]
+        simulation.transition_rate = gamma
+        simulation.max_simulation_time = max_simulation_time
+        simulation.total_mutations = jump
+        simulation.computing_time = end-start
+        simulation.simulation_time = time
+        simulation.date = date
+
+        for phen in phenotypes:
+            setattr(simulation, 'tau_'+phen, tau[phen] if tau[phen] >= 0 else time)
+            setattr(simulation, 'mutations_'+phen, N[phen])
+
+        try:
+            client.post_document(
+            db="simulations-cw-"+gspace_name,
+            document=simulation
+            )
+            print("Wrote in Cloudant successfully")
+
+        except:
+            print("Unexpected error")
