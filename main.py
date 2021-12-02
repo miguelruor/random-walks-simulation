@@ -5,7 +5,7 @@ import networkx as nx
 import ibm_boto3
 from ibm_botocore.client import Config
 from ibm_botocore.exceptions import ClientError
-from ibmcloudant.cloudant_v1 import CloudantV1
+from ibmcloudant.cloudant_v1 import CloudantV1, Document
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from dotenv import load_dotenv
 
@@ -104,23 +104,23 @@ if __name__ == "__main__":
     
     for i in range(num_simulations):
         print("Simulation {0}".format(i))
-        results = classic_simulation.simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, gamma_c)
+        results = classic_simulation.simulation_cw(gspace, phenotypes, initial_genotype, max_simulation_time, gamma_c)
 
         simulation: Document = Document()
 
-        simulation.initial_gen_index = initial_genotype
-        simulation.initial_gen = gspace.nodes[initial_genotype]['sequence']
-        simulation.initial_phen = gspace.nodes[initial_genotype]['phenotypeName'][0]
-        simulation.transition_rate = gamma
-        simulation.max_simulation_time = max_simulation_time
-        simulation.total_mutations = jump
-        simulation.computing_time = end-start
-        simulation.simulation_time = time
-        simulation.date = date
+        simulation.initial_gen_index = results["initial_genotype"]
+        simulation.initial_gen = results["initial_gen"]
+        simulation.initial_phen = results["initial_phen"]
+        simulation.transition_rate = results["transition_rate"]
+        simulation.max_simulation_time = results["max_simulation_time"]
+        simulation.total_mutations = results["total_mutations"]
+        simulation.computing_time = results["computing_time"]
+        simulation.simulation_time = results["simulation_time"]
+        simulation.date = results["date"]
 
         for phen in phenotypes:
-            setattr(simulation, 'tau_'+phen, tau[phen] if tau[phen] >= 0 else time)
-            setattr(simulation, 'mutations_'+phen, N[phen])
+            setattr(simulation, 'tau_'+phen, results["tau_"+phen])
+            setattr(simulation, 'mutations_'+phen, results["mutations_"+phen])
 
         try:
             client.post_document(
