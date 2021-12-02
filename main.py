@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
         simulation: Document = Document()
 
-        simulation.initial_gen_index = results["initial_genotype"]
+        simulation.initial_gen_index = results["initial_gen_index"]
         simulation.initial_gen = results["initial_gen"]
         simulation.initial_phen = results["initial_phen"]
         simulation.transition_rate = results["transition_rate"]
