@@ -1,7 +1,7 @@
 import classic_simulation
 import json
-import os
 import networkx as nx
+import pandas as pd
 
 if __name__ == "__main__":
     
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     names = ['four_phen', 'musculus', 'neurospora', 'arabidopsis']
 
     job_index = 0
-    num_simulations = 500
+    num_simulations = 1000
 
     if job_index < 10000:
         gspace_name = names[1]
@@ -47,7 +47,15 @@ if __name__ == "__main__":
     initial_genotype = initial_nodes[initial_node_index]
     max_simulation_time = classical_parameters['max_time'] 
     gamma_c = classical_parameters['transition_rate']
+
+    df = pd.DataFrame()
     
     for i in range(num_simulations):
         print(f"Simulation {i}")
-        classic_simulation.simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, gamma_c)
+        simulation = classic_simulation.simulation_cw(gspace, phenotypes, initial_genotype, max_simulation_time, gamma_c)
+        df = df.append(simulation, ignore_index=True)
+
+    df_past = pd.read_csv(f"results/{gspace_name}-cw.csv")
+
+    df = pd.concat([df_past, df], ignore_index=True)
+    df.to_csv(f"results/{gspace_name}-cw.csv", index=False)

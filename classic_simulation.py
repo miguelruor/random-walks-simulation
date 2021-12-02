@@ -1,8 +1,6 @@
 import numpy as np
 import networkx as nx
 from scipy.stats import expon
-from ibmcloudant.cloudant_v1 import CloudantV1, Document
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import os
 import time as timing
 from datetime import datetime
@@ -25,7 +23,7 @@ def nextState(states, i, Q):
 
   return np.random.choice(states, p = probs)
 
-def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, gamma):
+def simulation_cw(gspace, phenotypes, initial_genotype, max_simulation_time, gamma):
   start = timing.time()
   date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
@@ -68,39 +66,20 @@ def simulation_cw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   # end of simulation
   end = timing.time()
 
-  # database connection
-  authenticator = IAMAuthenticator(os.environ['CLOUDANT_APIKEY'])
+  simulation = {}
 
-  cloudant = CloudantV1(authenticator=authenticator)
-  cloudant.set_service_url(os.environ['CLOUDANT_URL'])
-
-  try:
-    client = cloudant.new_instance()
-  except:
-    print("Could not create a cloudant client")
-
-  simulation: Document = Document()
-
-  simulation.initial_gen_index = initial_genotype
-  simulation.initial_gen = gspace.nodes[initial_genotype]['sequence']
-  simulation.initial_phen = gspace.nodes[initial_genotype]['phenotypeName'][0]
-  simulation.transition_rate = gamma
-  simulation.max_simulation_time = max_simulation_time
-  simulation.total_mutations = jump
-  simulation.computing_time = end-start
-  simulation.simulation_time = time
-  simulation.date = date
+  simulation["initial_gen_index"] = initial_genotype
+  simulation["initial_gen"] = gspace.nodes[initial_genotype]['sequence']
+  simulation["initial_phen"] = gspace.nodes[initial_genotype]['phenotypeName'][0]
+  simulation["transition_rate"] = gamma
+  simulation["max_simulation_time"] = max_simulation_time
+  simulation["total_mutations"] = jump
+  simulation["computing_time"] = end-start
+  simulation["simulation_time"] = time
+  simulation["date"] = date
 
   for phen in phenotypes:
-    setattr(simulation, 'tau_'+phen, tau[phen] if tau[phen] >= 0 else time)
-    setattr(simulation, 'mutations_'+phen, N[phen])
+    simulation['tau_'+phen] = tau[phen] if tau[phen] >= 0 else time
+    simulation['mutations_'+phen] = N[phen]
 
-  try:
-    client.post_document(
-      db="simulations-cw-"+gspace_name,
-      document=simulation
-    )
-    print("Wrote in Cloudant successfully")
-
-  except:
-    print("Unexpected error")
+  return simulation
