@@ -63,6 +63,8 @@ if __name__ == "__main__":
     classical_parameters = json.loads(get_item("parameters", "classical-parameters.json").decode('utf8'))
 
     job_index = int(os.environ['JOB_INDEX'])
+    
+    print(job_index)
 
     if job_index < 10000:
         gspace_name = names[1]

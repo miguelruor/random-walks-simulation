@@ -24,6 +24,7 @@ def nextState(states, i, Q):
   return np.random.choice(states, p = probs)
 
 def simulation_cw(gspace, phenotypes, initial_genotype, max_simulation_time, gamma):
+  print("Hola")
   start = timing.time()
   date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
